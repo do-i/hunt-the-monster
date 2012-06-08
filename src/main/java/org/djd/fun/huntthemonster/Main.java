@@ -23,7 +23,7 @@ public class Main {
 			}
 		}
 		Game game = new Game(x, y);
-		game.start();
+		game.startGame();
 
 	}
 

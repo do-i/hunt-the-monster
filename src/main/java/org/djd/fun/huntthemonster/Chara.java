@@ -3,6 +3,8 @@ package org.djd.fun.huntthemonster;
 import java.util.Random;
 
 public class Chara {
+	private static final long SEED_PSUDO_RANDOM = 20120608;
+	private static final Random PSUDO_RANDOM = new Random(SEED_PSUDO_RANDOM);
 
 	protected int x;
 	protected int y;
@@ -16,15 +18,14 @@ public class Chara {
 	 */
 	public Chara(Dungeon dungeon) {
 		this.dungeon = dungeon;
-		Random random = new Random();
 
 		// if no room then re-generate x, y
 		do {
-			x = random.nextInt(dungeon.width());
-			y = random.nextInt(dungeon.height());
+			x = PSUDO_RANDOM.nextInt(dungeon.width());
+			y = PSUDO_RANDOM.nextInt(dungeon.height());
 
 		} while (!dungeon.isRoom(x, y));
-		
+
 	}
 
 	/**
@@ -49,15 +50,14 @@ public class Chara {
 
 		boolean newxOk = isInRange(newx, 0, dungeon.width());
 		boolean newyOk = isInRange(newy, 0, dungeon.height());
-		
-		
+
 		// check if the new location is a room.
-		boolean allOk = newxOk && newyOk &&  dungeon.isRoom(newx, newy);
-		if (allOk ) {			
+		boolean allOk = newxOk && newyOk && dungeon.isRoom(newx, newy);
+		if (allOk) {
 			x = newx;
 			y = newy;
 		}
-		
+
 		return allOk;
 	}
 

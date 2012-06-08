@@ -17,7 +17,8 @@ public class Game {
 	private static final String DIRECTIONS = "[NESW]?";
 	private static final String WELCOME_MESSAGE = "Welcome to Hunt the Wumpus!";
 	private static final String END_MESSAGE = "See you soon!";
-	private static final Random RANDOM = new Random();
+	private static final long SEED_PSUDO_RANDOM = 20120608;	
+	private static final Random PSUDO_RANDOM = new Random(SEED_PSUDO_RANDOM);
 	Information information;
 	Dungeon dungeon;
 	Chara charaMonster;
@@ -60,7 +61,7 @@ public class Game {
 	 * 
 	 * @throws IOException
 	 */
-	public void start() throws IOException {
+	public void startGame() throws IOException {
 
 		System.out.println(WELCOME_MESSAGE);
 
@@ -199,7 +200,7 @@ public class Game {
 		boolean monsterMovedOk = false;
 		do {
 
-			int index  = RANDOM.nextInt(directions.length);
+			int index  = PSUDO_RANDOM.nextInt(directions.length);
 			++count;
 			if (MAX_RETRY_COUNT < count) {
 				throw new IllegalStateException(

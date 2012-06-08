@@ -17,7 +17,7 @@ public class GameTest {
 		System.setIn(byteArrayInputStream);
 		Game game = new Game(3, 3);
 	
-		game.start();	
+		game.startGame();	
 
 	}
 
