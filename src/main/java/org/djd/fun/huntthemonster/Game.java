@@ -1,10 +1,14 @@
 package org.djd.fun.huntthemonster;
 
 import static org.djd.fun.huntthemonster.Constants.MAX_RETRY_COUNT;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -14,6 +18,7 @@ import java.util.Random;
  */
 public class Game {
 
+   private static final Logger LOG = LoggerFactory.getLogger(Game.class);
 	private static final String DIRECTIONS = "[NESW]?";
 	private static final String WELCOME_MESSAGE = "Welcome to Hunt the Wumpus!";
 	private static final String END_MESSAGE = "See you soon!";
@@ -63,6 +68,7 @@ public class Game {
 	 */
 	public void startGame() throws IOException {
 
+	   LOG.info("game has begun.");
 		System.out.println(WELCOME_MESSAGE);
 
 		boolean exit = false;

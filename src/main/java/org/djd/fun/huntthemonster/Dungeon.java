@@ -5,7 +5,9 @@ import java.util.Random;
 
 public class Dungeon {
 
-	private final static Random RANDOM = new Random();
+   private static final long SEED_PSUDO_RANDOM = 20120608;
+   private static final Random PSUDO_RANDOM = new Random(SEED_PSUDO_RANDOM);
+
 	private boolean[][] area;
 
 	public Dungeon(int width, int height) {
@@ -111,7 +113,7 @@ public class Dungeon {
 	@Deprecated
 	private boolean isRoom() {
 
-		return 0 != RANDOM.nextInt(4);
+		return 0 != PSUDO_RANDOM.nextInt(4);
 	}
 
 	public boolean isRoom(int x, int y) {
