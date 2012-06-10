@@ -10,211 +10,204 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 
- * Initialize {@link Information}, {@link Dungeon}, {@link Chara},
- * {@link Player} objects.
- * 
- */
 public class Game {
 
    private static final Logger LOG = LoggerFactory.getLogger(Game.class);
-	private static final String DIRECTIONS = "[NESW]?";
-	private static final String WELCOME_MESSAGE = "Welcome to Hunt the Wumpus!";
-	private static final String END_MESSAGE = "See you soon!";
-	private static final long SEED_PSUDO_RANDOM = 20120608;	
-	private static final Random PSUDO_RANDOM = new Random(SEED_PSUDO_RANDOM);
-	Information information;
-	Dungeon dungeon;
-	Chara charaMonster;
-	Player player;
+   private static final String DIRECTIONS = "[NESW]?";
+   private static final String WELCOME_MESSAGE = "Welcome to Hunt the Wumpus!";
+   private static final String END_MESSAGE = "See you soon!";
+   private static final long SEED_PSUDO_RANDOM = 20120608;
+   private static final Random PSUDO_RANDOM = new Random(SEED_PSUDO_RANDOM);
+   Information information;
+   Dungeon dungeon;
+   Chara charaMonster;
+   Player player;
 
-	DevDebugTool devDebugTool;
+   DevDebugTool devDebugTool;
 
-	/**
-	 * default Game constructs with 2x2 dungeon.
-	 */
-	public Game() {
-		this(2, 2);
-	}
+   /**
+    * default Game constructs with 2x2 dungeon.
+    */
+   public Game() {
+      this(2, 2);
+   }
 
-	/**
-	 * Creates Game with Dungeon size specified by args.
-	 * 
-	 * @param width
-	 *            of dungeon
-	 * @param height
-	 *            of dungeon
-	 */
-	public Game(int width, int height) {
-		information = new Information();
-		dungeon = new Dungeon(width, height);
-		charaMonster = new Chara(dungeon);
+   /**
+    * Creates Game with Dungeon size specified by args. And initializes
+    * {@link Information}, {@link Dungeon}, {@link Chara}, {@link Player}
+    * objects.
+    * 
+    * @param width
+    *           of dungeon
+    * @param height
+    *           of dungeon
+    */
+   public Game(int width, int height) {
+      information = new Information();
+      dungeon = new Dungeon(width, height);
+      charaMonster = new Chara(dungeon);
 
-		// make sure the player is not in the same room as monster.
-		do {
-			player = new Player(dungeon);
-		} while (arePlayerAndMonsterInTheSameRoom());
+      // make sure the player is not in the same room as monster.
+      do {
+         player = new Player(dungeon);
+      } while (arePlayerAndMonsterInTheSameRoom());
 
-		devDebugTool = new DevDebugTool(dungeon, charaMonster, player);
-	}
+      devDebugTool = new DevDebugTool(dungeon, charaMonster, player);
+   }
 
-	/**
-	 * Starts the game. Accepts user input as command. If user enters 'end' then
-	 * game will halt. Otherwise it continues until monster kills you or other
-	 * way around.
-	 * 
-	 * @throws IOException
-	 */
-	public void startGame() throws IOException {
+   /**
+    * Starts the game. Accepts user input as command. If user enters 'end' then
+    * game will halt. Otherwise it continues until monster kills you or other
+    * way around.
+    * 
+    * @throws IOException
+    */
+   public void startGame() throws IOException {
 
-	   LOG.info("game has begun.");
-		System.out.println(WELCOME_MESSAGE);
+      LOG.info("game has begun.");
+      System.out.println(WELCOME_MESSAGE);
 
-		boolean exit = false;
-		do {
-			devDebugTool.debugInfo();
-			information.displayAvailableCommands();
+      boolean exit = false;
+      do {
+         devDebugTool.debugInfo();
+         information.displayAvailableCommands();
 
-			String command = acceptCommand().toUpperCase();
+         String command = acceptCommand().toUpperCase();
 
-			System.out.println("You entered. " + command);
+         System.out.println("You entered. " + command);
 
-			if (command.matches(DIRECTIONS)) {
-				Direction direction = Direction.valueOf(command);
-				if (!player.moveTo(direction)) {
-					information.displayCannotMoveToDirection(direction);
-					continue; // without moving monstor, player can move if the
-								// player failed to move.
-				}
-			} else {
+         if (command.matches(DIRECTIONS)) {
+            Direction direction = Direction.valueOf(command);
+            if (!player.moveTo(direction)) {
+               information.displayCannotMoveToDirection(direction);
+               continue; // without moving monstor, player can move if the
+                         // player failed to move.
+            }
+         } else {
 
-				switch (command) {
+            switch (command) {
 
-				case "F": // find (smell)
-					if (player.smell(charaMonster)) {
-						information.displayMonsterIsAround();
+            case "F": // find (smell)
+               if (player.smell(charaMonster)) {
+                  information.displayMonsterIsAround();
 
-					} else {
+               } else {
 
-						information.displayMonsterIsNotAround();
-					}
+                  information.displayMonsterIsNotAround();
+               }
 
-					continue; // don't let monster move around.
-				case "A": // attack
+               continue; // don't let monster move around.
+            case "A": // attack
 
-					if (attackAction()) {
-						exit = true;
-						information.displayPlayerKilledMonster();
+               if (attackAction()) {
+                  exit = true;
+                  information.displayPlayerKilledMonster();
 
-					} else {
-						information.displayMissAttack();
-					}
+               } else {
+                  information.displayMissAttack();
+               }
 
-					break;
-				case "END":
-					exit = true;
-					break;
-				default:
-					information.displayWarnNotValidCommand(command);
-					continue;
+               break;
+            case "END":
+               exit = true;
+               break;
+            default:
+               information.displayWarnNotValidCommand(command);
+               continue;
 
-				}
-			}
+            }
+         }
 
-			// check if player and monster are in the same room after player's
-			// move
-			if (!exit && arePlayerAndMonsterInTheSameRoom()) {
-				exit = true;
-				information.displayMonsterKilledPlayer();
-			}
+         // check if player and monster are in the same room after player's
+         // move
+         if (!exit && arePlayerAndMonsterInTheSameRoom()) {
+            exit = true;
+            information.displayMonsterKilledPlayer();
+         }
 
-			// move monster.
-			if (!exit) {
-				moveMonsterRandomly();
-			}
-			// check if player and monster are in the same room after monster's
+         // move monster.
+         if (!exit) {
+            moveMonsterRandomly();
+         }
+         // check if player and monster are in the same room after monster's
 
-			if (!exit && arePlayerAndMonsterInTheSameRoom()) {
-				exit = true;
-				information.displayMonsterKilledPlayer();
-			}
+         if (!exit && arePlayerAndMonsterInTheSameRoom()) {
+            exit = true;
+            information.displayMonsterKilledPlayer();
+         }
 
-		} while (!exit);
-		System.out.println(END_MESSAGE);
+      } while (!exit);
+      System.out.println(END_MESSAGE);
 
-	}
+   }
 
-	/**
-	 * 
-	 * @return command entered by the user.
-	 * @throws IOException
-	 */
-	private String acceptCommand() throws IOException {
-		BufferedReader stdin = new BufferedReader(new InputStreamReader(
-				System.in));
-		return stdin.readLine();
-	}
+   /**
+    * 
+    * @return command entered by the user.
+    * @throws IOException
+    */
+   private String acceptCommand() throws IOException {
+      BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+      return stdin.readLine();
+   }
 
-	private boolean attackAction() throws IOException {
-		information.displayAvailableCommandsForAttack();
+   private boolean attackAction() throws IOException {
+      information.displayAvailableCommandsForAttack();
 
-		String command = acceptCommand().toUpperCase();
-		System.out.println("Attacking " + command);
+      String command = acceptCommand().toUpperCase();
+      System.out.println("Attacking " + command);
 
-		if (command.matches(DIRECTIONS)) {
+      if (command.matches(DIRECTIONS)) {
 
-			Direction direction = Direction.valueOf(command);
-			return player.shoot(direction, charaMonster);
-		}
+         Direction direction = Direction.valueOf(command);
+         return player.shoot(direction, charaMonster);
+      }
 
-		// if use enter wrong direction it is considered as miss.
-		return false;
-	}
+      // if use enter wrong direction it is considered as miss.
+      return false;
+   }
 
-	private boolean arePlayerAndMonsterInTheSameRoom() {
-		return player.isCharaInTheSameRoomWith(charaMonster);
-	}
+   private boolean arePlayerAndMonsterInTheSameRoom() {
+      return player.isCharaInTheSameRoomWith(charaMonster);
+   }
 
-	/**
-	 * Simple-minded monster Never Eats Sea-Weed. The monster tries to move in
-	 * the order of N-E-S-W.
-	 */
-	@Deprecated
-	private void moveMonster() {
+   /**
+    * Simple-minded monster Never Eats Sea-Weed. The monster tries to move in
+    * the order of N-E-S-W.
+    */
+   @Deprecated
+   private void moveMonster() {
 
-		for (Direction direction : Direction.values()) {
-			if (charaMonster.moveTo(direction)) {
-				return;
-			}
-		}
+      for (Direction direction : Direction.values()) {
+         if (charaMonster.moveTo(direction)) {
+            return;
+         }
+      }
 
-		throw new IllegalStateException("Monster cannot move to any direction.");
+      throw new IllegalStateException("Monster cannot move to any direction.");
 
-	}
+   }
 
-	/**
-	 * Monster randomely choose which way he wants to move.
-	 * If picked direction is not movable then pick again.
-	 * Monster can pick same spot more than once.
-	 */
-	private void moveMonsterRandomly() {
+   /**
+    * Monster randomely choose which way he wants to move. If picked direction
+    * is not movable then pick again. Monster can pick same spot more than once.
+    */
+   private void moveMonsterRandomly() {
 
-		Direction[] directions = Direction.values();
-		int count = 0;
-		
-		boolean monsterMovedOk = false;
-		do {
+      Direction[] directions = Direction.values();
+      int count = 0;
 
-			int index  = PSUDO_RANDOM.nextInt(directions.length);
-			++count;
-			if (MAX_RETRY_COUNT < count) {
-				throw new IllegalStateException(
-						"Monster cannot move to any directions.");
-			}
-			monsterMovedOk = charaMonster.moveTo(directions[index]);
-		} while (!monsterMovedOk);
+      boolean monsterMovedOk = false;
+      do {
 
-	}
+         int index = PSUDO_RANDOM.nextInt(directions.length);
+         ++count;
+         if (MAX_RETRY_COUNT < count) {
+            throw new IllegalStateException("Monster cannot move to any directions.");
+         }
+         monsterMovedOk = charaMonster.moveTo(directions[index]);
+      } while (!monsterMovedOk);
+
+   }
 
 }
