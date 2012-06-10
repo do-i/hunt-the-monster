@@ -121,22 +121,23 @@ public class Dungeon {
 		return area[y][x];
 	}
 
-	@Deprecated
-	public void debugPrintDungeonMap() {
-		StringBuilder sb = new StringBuilder();
-		for (boolean[] rooms : area) {
-
-			for (boolean room : rooms) {
-				sb.append(toInt(room));
-				sb.append(" ");
-
-			}
-
-			sb.append(NEW_LINE);
-		}
-		System.out.println(sb);
-	}
-	
+	/**
+	 * print dungeon map with monster indicated by m, player indicated by p.
+	 * <p>
+	 * No room is indicated by 0 <br>
+	 * a room is indicated by 1 <br>
+	 * <p>
+	 * <pre>
+	 * 1 1 m 1
+    * 0 1 0 1
+    * 1 1 1 1
+    * 0 p 0 1
+    * </pre>
+    * 
+    * 
+	 * @param monster
+	 * @param player
+	 */
 	public void debugPrintDungeonMapWithCharas(Chara monster, Chara player) {
 		StringBuilder sb = new StringBuilder();
 		for (int y=0; y<area.length; y++) {
